@@ -27,7 +27,7 @@ MULTIPLIER = {
     "low_or_high":2,
     "any":36,
     "combination":36, # divided later by the amount of nrs chosen
-    "dozen": 12,
+    "dozen": 3,
     "red_or_black":2,
     "zeros":18
 }
@@ -47,7 +47,7 @@ Rules:
 
 class Roulette:
     amount_of_players = 0
-    turn = 1
+    turn = 0
     currency = '$'
 
     def __init__(self, nickname='Default Player', money=1000):
@@ -64,7 +64,8 @@ class Roulette:
     @staticmethod
     def spin():
 
-        Roulette.turn =+ 1
+        Roulette.turn += 1
+
         return choice(RULES['ANY'])
 
     @staticmethod
@@ -90,43 +91,46 @@ class Roulette:
 
         for bet in self.turn_list:
             bet['bet_amount'] = int(bet['bet_amount'])
+
             if bet['bet_type'] == 'even_or_odd':
                 if bet['bet_choice'] == 'even' and turn_outcome %2 == 0 or  bet['bet_choice'] == 'odd' and turn_outcome & 1:
                     bet['bet_winning'] = bet['bet_amount'] * MULTIPLIER['even_or_odd']
-                    break
+                    continue
 
             if bet['bet_type'] == 'low_or_high':
                 if bet['bet_choice'] == 'low' and test_between(1, 18, turn_outcome) or bet['bet_choice'] == 'high' and test_between(19, 36, turn_outcome):
                     bet['bet_winning'] = bet['bet_amount'] * MULTIPLIER['low_or_high']
-                    break
+                    continue
 
 
             if bet['bet_type'] == 'dozen':
                 if bet['bet_choice'] == 1 and test_between(1, 12, turn_outcome) or bet['bet_choice'] == 13 and test_between(13, 24, turn_outcome) or bet['bet_choice'] == 25 and test_between(25, 36, turn_outcome):
                     bet['bet_winning'] = bet['bet_amount'] * MULTIPLIER['dozen']
-                    break
+                    continue
 
             if bet['bet_type'] == 'any':
-                if bet['bet_choice'] == turn_outcome:
+                if int(bet['bet_choice']) == turn_outcome:
                     bet['bet_winning'] = bet['bet_amount'] * MULTIPLIER['any']
-                    break
+                    continue
 
             if bet['bet_type'] == 'combination' and turn_outcome in bet['bet_choice']:
                 bet['bet_winning'] = bet['bet_amount'] * (MULTIPLIER['combination']/len(bet['bet_choice']))
-                break
+                continue
 
             if bet['bet_type'] == 'red_or_black':
                 if bet['bet_choice'] == 'red' and turn_outcome in RULES['RED'] or bet['bet_choice'] == 'black' and turn_outcome in RULES['BLACK']:
                     bet['bet_winning'] = bet['bet_amount'] * MULTIPLIER['red_or_black']
-                    break
+                    continue
 
             if bet['bet_type'] == 'zeros' and turn_outcome in RULES['ZERO']:
                 bet['bet_winning'] = bet['bet_amount'] * MULTIPLIER['zeros']
-                break
+                continue
 
-            bet['bet_winning'] = bet['bet_amount'] * -1
+            bet['bet_winning'] = 0
 
-        self.money = self.money + bet['bet_winning']
+        for bet in self.turn_list:
+            self.total_winnings = self.total_winnings + bet['bet_winning']
+            self.money = self.money + bet['bet_winning']
 
         # Let's append the turn array to the bets.
 
@@ -184,8 +188,9 @@ while True:
 
 def play():
     turn_outcome = Roulette.spin()
+    additional_bet = 1
     for key in nicknames:
-        additional_bet = 1
+
 
         # Because a player can do additional bets in 1 turn, inf loop
         while True:
@@ -243,7 +248,6 @@ def play():
             if bet == '1':
                 bet_type = 'dozen'
                 bet_choice = 1
-                print('bitch')
 
             if bet == '13':
                 bet_type = 'dozen'
@@ -271,7 +275,7 @@ def play():
                 bet_choice = 'zeros'
 
             while True:
-                bet_amount = input(f'How much would you like to bet? 1-{nicknames[key].money} ')
+                bet_amount = input(f'How much would you like to bet? [1-{nicknames[key].money}] ')
                 # Test if input is a number
                 if test_between(1, nicknames[key].money, bet_amount):
                     break
@@ -280,12 +284,22 @@ def play():
 
             nicknames[key].add_bet(bet_type, bet_choice, bet_amount)
 
+            nicknames[key].money = nicknames[key].money - int(bet_amount)
+
+            additional_bet += 1
+
+            del bet_type, bet_choice, bet_amount
+
             # Check if user wants another bet
-            print('Make another bet?')
-            if not read_yes_no():
+            if nicknames[key].money > 0:
+                print('Make another bet?')
+                if not read_yes_no():
+                    additional_bet = 1
+                    break
+            else:
+                print('You went all in! You can\'t make another bet!')
                 break
 
-            additional_bet =+ 1
 
         nicknames[key].bet_outcome(turn_outcome)
 
@@ -313,5 +327,6 @@ while playing:
         if nicknames[key].money < 1:
             print(f'Player: {nicknames[key].nickname} is broke, you lost!')
             playing = False
+            break
         else:
             play()
