@@ -4,6 +4,19 @@ import os
 from random import choice
 
 # Define Statics
+from betTypes.BetBlack import BetBlack
+from betTypes.BetCombination import BetCombination
+from betTypes.BetDozenHigh import BetDozenHigh
+from betTypes.BetDozenLow import BetDozenLow
+from betTypes.BetDozenMiddle import BetDozenMiddle
+from betTypes.BetEven import BetEven
+from betTypes.BetHigh import BetHigh
+from betTypes.BetLow import BetLow
+from betTypes.BetOdd import BetOdd
+from betTypes.BetRed import BetRed
+from betTypes.BetSingleNumber import BetSingleNumber
+from betTypes.BetZero import BetZero
+
 RULES = {}
 RULES['RED'] = [1, 3, 5, 7, 9, 12,
                         14, 16, 18, 19, 21, 23,
@@ -73,14 +86,13 @@ class Roulette:
         pass
 
 
-    def add_bet(self, bet_type, bet_choice, bet_amount):
+    def add_bet(self, bet_type, bet_amount):
 
         # Save in dict so it can be viewed later
 
         save_bet = {}
 
         save_bet['bet_type'] = bet_type
-        save_bet['bet_choice'] = bet_choice
         save_bet['bet_amount'] = bet_amount
 
         self.turn_list.append(save_bet)
@@ -91,42 +103,11 @@ class Roulette:
 
         for bet in self.turn_list:
             bet['bet_amount'] = int(bet['bet_amount'])
-
-            if bet['bet_type'] == 'even_or_odd':
-                if bet['bet_choice'] == 'even' and turn_outcome %2 == 0 or  bet['bet_choice'] == 'odd' and turn_outcome & 1:
-                    bet['bet_winning'] = bet['bet_amount'] * MULTIPLIER['even_or_odd']
-                    continue
-
-            if bet['bet_type'] == 'low_or_high':
-                if bet['bet_choice'] == 'low' and test_between(1, 18, turn_outcome) or bet['bet_choice'] == 'high' and test_between(19, 36, turn_outcome):
-                    bet['bet_winning'] = bet['bet_amount'] * MULTIPLIER['low_or_high']
-                    continue
-
-
-            if bet['bet_type'] == 'dozen':
-                if bet['bet_choice'] == 1 and test_between(1, 12, turn_outcome) or bet['bet_choice'] == 13 and test_between(13, 24, turn_outcome) or bet['bet_choice'] == 25 and test_between(25, 36, turn_outcome):
-                    bet['bet_winning'] = bet['bet_amount'] * MULTIPLIER['dozen']
-                    continue
-
-            if bet['bet_type'] == 'any':
-                if int(bet['bet_choice']) == turn_outcome:
-                    bet['bet_winning'] = bet['bet_amount'] * MULTIPLIER['any']
-                    continue
-
-            if bet['bet_type'] == 'combination' and turn_outcome in bet['bet_choice']:
-                bet['bet_winning'] = bet['bet_amount'] * (MULTIPLIER['combination']/len(bet['bet_choice']))
-                continue
-
-            if bet['bet_type'] == 'red_or_black':
-                if bet['bet_choice'] == 'red' and turn_outcome in RULES['RED'] or bet['bet_choice'] == 'black' and turn_outcome in RULES['BLACK']:
-                    bet['bet_winning'] = bet['bet_amount'] * MULTIPLIER['red_or_black']
-                    continue
-
-            if bet['bet_type'] == 'zeros' and turn_outcome in RULES['ZERO']:
-                bet['bet_winning'] = bet['bet_amount'] * MULTIPLIER['zeros']
-                continue
-
-            bet['bet_winning'] = 0
+            betType = bet['bet_type']
+            if betType.bet_success(turn_outcome):
+                bet['bet_winning'] = bet['bet_amount'] * betType.multiplier()
+            else:
+                bet['bet_winning'] = 0
 
         for bet in self.turn_list:
             self.total_winnings = self.total_winnings + bet['bet_winning']
@@ -186,6 +167,9 @@ while True:
 # Players are created. Objects are initialized.
 
 
+
+
+
 def play():
     turn_outcome = Roulette.spin()
     additional_bet = 1
@@ -212,7 +196,6 @@ def play():
             # Handle combination logic
 
             if bet == 'com' or bet == 'Com' or bet == 'COM':
-                bet_type = 'combination'
                 invalid = True
                 while invalid:
                     nr = input('Enter up to six numbers, seperated by a comma (,)  : ')
@@ -229,50 +212,50 @@ def play():
                             invalid = False
                         if not invalid:
                             nr = None
-                            bet_choice = list(map(int, bet_choice))
+                            bet_type = BetCombination(list(map(int, bet_choice)))
                             break
 
             # Handle 'any' logic
             if bet == 'any' or bet == 'Any' or bet == 'ANY':
-                bet_type = 'any'
                 while True:
                     bet_choice = input('Which number would you like to bet on? [1-36]: ')
                     # Test if input is a number
                     valid = test_between(1, 36, bet_choice)
                     if valid:
+                        bet_type = BetSingleNumber(bet_choice)
                         break
                     else:
                         print('Please enter a value between 1-36')
 
             # Handle dozen logic
             if bet == '1':
-                bet_type = 'dozen'
-                bet_choice = 1
+                bet_type = BetDozenLow()
 
             if bet == '13':
-                bet_type = 'dozen'
-                bet_choice = 13
+                bet_type = BetDozenMiddle()
             if bet == '25':
-                bet_type = 'dozen'
-                bet_choice = 25
+                bet_type = BetDozenHigh()
 
-            # Handle even/odd red/black logic
-            if bet == 'red' or bet == 'black':
-                bet_type = 'red_or_black'
-                bet_choice = bet
+            if bet == 'red':
+                bet_type = BetRed()
 
-            if bet == 'even' or bet == 'odd':
-                bet_type = 'even_or_odd'
-                bet_choice = bet
+            if bet == 'black':
+                bet_type = BetBlack()
 
-            if bet == 'low' or bet == 'high':
-                bet_type = 'low_or_high'
-                bet_choice = bet
+            if bet == 'even':
+                bet_type = BetEven()
 
-            # Handle 0/00 logic
+            if bet == 'odd':
+                bet_type = BetOdd()
+
+            if bet == 'low':
+                bet_type = BetLow()
+
+            if bet == 'high':
+                bet_type = BetHigh()
+
             if bet == '00' or bet == '0':
-                bet_type = 'zeros'
-                bet_choice = 'zeros'
+                bet_type = BetZero()
 
             while True:
                 bet_amount = input(f'How much would you like to bet? [1-{nicknames[key].money}] ')
@@ -282,13 +265,13 @@ def play():
                 else:
                     print('Invalid input')
 
-            nicknames[key].add_bet(bet_type, bet_choice, bet_amount)
+            nicknames[key].add_bet(bet_type, bet_amount)
 
             nicknames[key].money = nicknames[key].money - int(bet_amount)
 
             additional_bet += 1
 
-            del bet_type, bet_choice, bet_amount
+            del bet_type, bet_amount
 
             # Check if user wants another bet
             if nicknames[key].money > 0:
@@ -313,7 +296,7 @@ def play():
         print(f'Player: {nicknames[key].nickname}')
         for i in range(len(nicknames[key].turn_list)):
             print(f"""
-             -> Chosen: {nicknames[key].turn_list[i]['bet_choice']}
+             -> Chosen: {nicknames[key].turn_list[i]['bet_type'].description()}
              -> Bet amount: {nicknames[key].turn_list[i]['bet_amount']}
              -> Winnings: {nicknames[key].turn_list[i]['bet_winning']}
              -> Money after round: {nicknames[key].money}
