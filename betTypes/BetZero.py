@@ -7,3 +7,6 @@ class BetZero(BetType):
 
     def multiplier(self):
         return 18
+
+    def description(self):
+        return 'Zero or double zero'

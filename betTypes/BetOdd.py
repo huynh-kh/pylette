@@ -9,3 +9,6 @@ class BetOdd(BetType):
         if number == '0' or number == '00':
             return False
         return int(number) % 2 == 1
+
+    def description(self):
+        return 'The odd numbers'

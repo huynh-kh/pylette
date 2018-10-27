@@ -10,3 +10,6 @@ class BetRed(BetType):
 
     def multiplier(self):
         return 2
+
+    def description(self):
+        return 'The red numbers'

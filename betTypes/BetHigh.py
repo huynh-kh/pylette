@@ -9,3 +9,6 @@ class BetHigh(BetType):
         if number == '0' or number == '00':
             return False
         return int(number) > 18
+
+    def description(self):
+        return 'The high numbers (19-36)'

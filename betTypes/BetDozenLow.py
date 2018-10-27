@@ -9,3 +9,6 @@ class BetDozenLow(BetType):
 
     def multiplier(self):
         return 3
+
+    def description(self):
+        return 'The first dozen (1-12)'

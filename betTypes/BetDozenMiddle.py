@@ -9,3 +9,6 @@ class BetDozenMiddle(BetType):
 
     def multiplier(self):
         return 3
+
+    def description(self):
+        return 'The second dozen (13-24)'

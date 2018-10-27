@@ -1,7 +1,7 @@
 from BetType import BetType
 
 
-class BetHigh(BetType):
+class BetLow(BetType):
     def multiplier(self):
         return 2
 
@@ -9,3 +9,6 @@ class BetHigh(BetType):
         if number == '0' or number == '00':
             return False
         return int(number) < 19
+
+    def description(self):
+        return 'The low numbers (1-18)'

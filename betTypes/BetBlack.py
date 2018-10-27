@@ -10,3 +10,6 @@ class BetBlack(BetType):
 
     def multiplier(self):
         return 2
+
+    def description(self):
+        return "Black numbers"

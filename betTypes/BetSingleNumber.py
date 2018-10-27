@@ -10,3 +10,6 @@ class BetSingleNumber(BetType):
 
     def multiplier(self):
         return 36
+
+    def description(self):
+        return "The number %d" % int(self.number)
