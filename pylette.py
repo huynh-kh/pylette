@@ -308,8 +308,10 @@ playing = True
 while playing:
     for key in nicknames:
         if nicknames[key].money < 1:
-            print(f'Player: {nicknames[key].nickname} is broke, you lost!')
-            playing = False
-            break
+            playing = False #loop is aborted, can't display losers here.
         else:
             play()
+
+for key in nicknames:
+    if nicknames[key].money < 1:
+        print(f'Player: {nicknames[key].nickname} is broke, you lost!')
