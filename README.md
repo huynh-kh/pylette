@@ -1,3 +1,4 @@
+[![Build Status](https://travis-ci.org/StanHVA/pylette.svg?branch=master)](https://travis-ci.org/StanHVA/pylette)
 # Pylette #
 
 This is a project I've created to improve my Python skills. I've never OOP coded before in any language, so I thought I'd give it a try. If you have improvements __please!__ open an 'issue' or send me a message so I can learn from my mistakes.
