@@ -25,7 +25,6 @@ steps:
     versionSpec: '$(python.version)'
   displayName: 'Use Python $(python.version)'
 
-script: 
 - script: |
     python3 pylette.py < input.txt
   displayName: 'Test Pylette'
